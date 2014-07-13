@@ -1,0 +1,57 @@
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+div#theater {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  display: table;
+}
+
+div#theater_row {
+  margin: 0;
+  padding: 0;
+  display: table-row;
+}
+
+div#queue {
+  margin: 0;
+  padding: 0;
+  background-color: #eee;
+  width: 312;
+  min-width: 312;
+  max-width: 312;
+  display: table-cell;
+  height:100%;
+  vertical-align: top;
+}
+
+div#stage {
+  margin: 0;
+  padding: 0;
+  background-color: #ddd;
+  display: table-cell;
+  width: 100%;
+  height: 100%;
+}
+
+
+iframe#stage {
+  border: 0;
+  height: 100%;
+  width: 100%;
+}
+
+embed {
+  width: 100%;
+  height: 100%;
+}
+
+iframe.queue {
+  border: 0;
+  width: 312;
+  height: 185;
+}
