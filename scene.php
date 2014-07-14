@@ -4,6 +4,6 @@
 </head>
 
 <body>
-<script type="text/javascript" src="http://ext.nicovideo.jp/thumb_watch/sm17209598"></script>
+<script type="text/javascript" src="http://ext.nicovideo.jp/thumb_watch/<?= $_GET["name"]?>"></script>
 </body>
 </html>

@@ -39,7 +39,7 @@ div#stage {
 }
 
 
-iframe#stage {
+iframe#stageFrame {
   border: 0;
   height: 100%;
   width: 100%;
