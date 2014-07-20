@@ -17,7 +17,7 @@ div#theater_row {
   display: table-row;
 }
 
-div#queue {
+div#sidebar {
   margin: 0;
   padding: 0;
   background-color: #eee;
@@ -27,6 +27,16 @@ div#queue {
   display: table-cell;
   height:100%;
   vertical-align: top;
+}
+
+div#menu {
+  height: 50;
+  padding: 2;
+}
+
+div#queue {
+  margin: 0;
+  padding: 0;
 }
 
 div#stage {
@@ -48,6 +58,38 @@ iframe#stageFrame {
 embed {
   width: 100%;
   height: 100%;
+}
+
+div.queueEntry {
+  border: 0;
+  width: 312;
+  height: 185;
+  position: relative;
+}
+
+div.queueButton {
+  position: absolute;
+  width: 312;
+  height: 185; 
+}
+
+div.queueButtonCurrent {
+  width: 292;
+  height: 165;
+  border: 10 #44f solid;
+}
+
+div.queueButton:hover {
+  cursor: pointer;
+  width: 292;
+  height: 165;
+  border: 10 #7bf solid;
+}
+
+div.queueButtonHighlight {
+  width: 292;
+  height: 165;
+  border: 10 #7bf solid;
 }
 
 iframe.queue {

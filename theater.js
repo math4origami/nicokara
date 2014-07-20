@@ -71,6 +71,17 @@ function reloadQueueCallback(response) {
 }
 
 function addQueue(serverSong, server_i) {
+  var queueEntry = document.createElement("div");
+  queueEntry.className = "queueEntry";
+  queueEntry.id = "queueEntry_" + server_i;
+
+  var queueButton = document.createElement("div");
+  queueButton.className = "queueButton";
+  queueButton.id = "queueButton_" + server_i;
+  queueButton.onmouseover = function () {
+    queueButtonMouseover(server_i);
+  };
+
   var queueSong = document.createElement("iframe");
   queueSong.src = "http://ext.nicovideo.jp/thumb/" + serverSong.name;
   queueSong.scrolling = "no";
@@ -78,27 +89,32 @@ function addQueue(serverSong, server_i) {
   queueSong.id = "queue_" + server_i;
 
   var queue = document.getElementById("queue");
-  queue.appendChild(queueSong);
+  queueEntry.appendChild(queueButton);
+  queueEntry.appendChild(queueSong);
+  queue.appendChild(queueEntry);
 
   clientQueue.push(serverSong);
-}
 
+}
 function updateQueue(serverSong, server_i) {
   var clientEntry = document.getElementById("queue_" + server_i);
   clientEntry.src = "http://ext.nicovideo.jp/thumb/" + serverSong.name;
 
   clientQueue[server_i] = serverSong;
+  if (server_i == currentStage) {
+    updateStage();
+  }
 }
 
 function popQueue() {
   var clientSong = clientQueue.pop();
-  var clientEntry = document.getElementById("queue_" + clientQueue.length);
+  var clientEntry = document.getElementById("queueEntry_" + clientQueue.length);
   clientEntry.parentNode.removeChild(clientEntry);
 }
 
 function refreshStage() {
   if (shouldUpdateStage()) {
-    updateStage();
+    incrementStage();
   }
 }
 
@@ -124,12 +140,22 @@ function shouldUpdateStage() {
   return false;
 }
 
-function updateStage() {
+function incrementStage() {
   if (currentStage + 1 >= clientQueue.length) {
     return;
   }
-
   currentStage++;
+
+  updateStage();
+}
+
+function updateStage() {
+  if (clientQueue.length <= 0 ||
+      currentStage < 0  ||
+      currentStage >= clientQueue.length) {
+    return;
+  } 
+
   var clientSong = clientQueue[currentStage];
 
   var scene = document.createElement("iframe");
@@ -140,6 +166,76 @@ function updateStage() {
   var stage = document.getElementById("stage");
   removeAllChildren(stage);
   stage.appendChild(scene);
+
+  var currentIdField = document.getElementById("currentIdField");
+  currentIdField.value = currentStage;
+
+  updateButtons();
+}
+
+function updateButtons() {
+  var buttons = document.getElementsByClassName("queueButton");
+  for (var i=0; i<buttons.length; i++) {
+    var queueButton = buttons[i];
+    queueButton.className = queueButton.className.replace("queueButtonCurrent", "");
+    queueButton.className = queueButton.className.replace("queueButtonHighlight", "");
+  }
+
+  var queueButton = document.getElementById("queueButton_" + currentStage);
+  queueButton.className += " queueButtonCurrent";
+}
+
+function queueButtonMouseover(index) {
+  updateButtons();
+
+  var currentIdField = document.getElementById("currentIdField");
+  currentIdField.value = index;
+}
+
+function updateCurrentField(field, event) {
+  if (event.keyIdentifier == "Enter") {
+    setCurrent();
+    return true;
+  }
+  if (!/\d/.test(String.fromCharCode(event.charCode))) {
+    return false;
+  }
+  
+  var newId = parseInt(field.value + String.fromCharCode(event.charCode));
+  if (newId < 0 || clientQueue.length <= 0) {
+    field.value = 0;
+  } else if (newId >= clientQueue.length) {
+    field.value = clientQueue.length - 1;
+  } else {
+    field.value = newId;
+  }
+
+  updateButtons();
+  var queueButton = document.getElementById("queueButton_" + field.value);
+  queueButton.className += " queueButtonHighlight";
+
+  return false;
+}
+
+function setCurrent() {
+  var currentIdField = document.getElementById("currentIdField");
+
+  var newId = parseInt(currentIdField.value);
+  if (newId < 0 || clientQueue.length <= 0) {
+    newId = 0;
+  } else if (newId >= clientQueue.length) {
+    newId = clientQueue.length - 1;
+  }
+  if (newId != currentIdField.value) {
+    currentIdField.value = newId;
+  }
+
+  if (clientQueue.length <= 0) {
+    currentStage = -1;
+  } else {
+    currentStage = newId;
+    updateStage();
+  }
 }
 
 run(reloadQueue, 2000);
