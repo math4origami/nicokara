@@ -1,6 +1,7 @@
 
 var clientQueue = [];
 var currentStage = -1;
+var highlightStage = -1;
 
 function removeAllChildren(node) {
   while (node.hasChildNodes()) {
@@ -80,6 +81,9 @@ function addQueue(serverSong, server_i) {
   queueButton.id = "queueButton_" + server_i;
   queueButton.onmouseover = function () {
     queueButtonMouseover(server_i);
+  };
+  queueButton.onclick = function () {
+    queueButtonClick(server_i);
   };
 
   var queueSong = document.createElement("iframe");
@@ -181,8 +185,10 @@ function updateButtons() {
     queueButton.className = queueButton.className.replace("queueButtonHighlight", "");
   }
 
-  var queueButton = document.getElementById("queueButton_" + currentStage);
-  queueButton.className += " queueButtonCurrent";
+  if (currentStage > -1) {
+    var queueButton = document.getElementById("queueButton_" + currentStage);
+    queueButton.className += " queueButtonCurrent";
+  }
 }
 
 function queueButtonMouseover(index) {
@@ -190,6 +196,10 @@ function queueButtonMouseover(index) {
 
   var currentIdField = document.getElementById("currentIdField");
   currentIdField.value = index;
+}
+
+function queueButtonClick(index) {
+  console.log("press "+index);
 }
 
 function updateCurrentField(field, event) {
