@@ -60,5 +60,9 @@ var bookmark = document.getElementById("bookmark");
 bookmark.appendChild(link);
 </script>
 
+<div>
+<a href="nicokaraExtension.user.js">Nicokara Extension</a>
+</div>
+
 </body>
 </html>

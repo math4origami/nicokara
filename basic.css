@@ -7,31 +7,43 @@ body {
 div#theater {
   margin: 0;
   padding: 0;
-  height: 100%;
-  display: table;
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
 }
 
 div#theater_row {
   margin: 0;
   padding: 0;
-  display: table-row;
 }
 
 div#sidebar {
   margin: 0;
   padding: 0;
   background-color: #eee;
-  width: 312;
-  min-width: 312;
-  max-width: 312;
-  display: table-cell;
-  height:100%;
-  vertical-align: top;
+  width: 333;
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
 }
 
 div#menu {
   height: 50;
   padding: 2;
+}
+
+div#queueContainer {
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  position: absolute;
+  top: 50;
+  bottom: 0;
+  left: 0;
+  width: 333;
 }
 
 div#queue {
@@ -43,9 +55,11 @@ div#stage {
   margin: 0;
   padding: 0;
   background-color: #ddd;
-  display: table-cell;
-  width: 100%;
-  height: 100%;
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 333;
+  right: 0;
 }
 
 
