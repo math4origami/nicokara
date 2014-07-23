@@ -18,12 +18,22 @@ function httpRequest(url, callback) {
   var xmlHttp = new XMLHttpRequest();
   xmlHttp.onreadystatechange = function() {
     if (xmlHttp.readyState==4 && xmlHttp.status==200) {
-      callback(xmlHttp.responseText);
+      if (callback) {
+        callback(xmlHttp.responseText);
+      }
       xmlHttp.onreadystatechange = null;
     }
   }
   xmlHttp.open("GET", url, true);
   xmlHttp.send();
+}
+
+function getActIndex() {
+  if (highlightStage > -1) {
+    return highlightStage;
+  } else {
+    return currentStage;
+  }
 }
 
 function loadStage() {
@@ -51,6 +61,7 @@ function reloadQueue() {
 
 function reloadQueueCallback(response) {
   var serverQueue = JSON.parse(response);
+  var changed = false;
   for (var server_i in serverQueue) {
     var serverSong = serverQueue[server_i];
     if (server_i == clientQueue.length) {
@@ -63,11 +74,16 @@ function reloadQueueCallback(response) {
     var clientSong = clientQueue[server_i];
     if (clientSong.name != serverSong.name) {
       updateQueue(serverSong, server_i);
+      changed = true;
     }
   }
 
   while (serverQueue.length < clientQueue.length) {
     popQueue();
+  }
+
+  if (changed) {
+    updateButtons();
   }
 }
 
@@ -85,6 +101,9 @@ function addQueue(serverSong, server_i) {
   queueButton.onclick = function () {
     queueButtonClick(server_i);
   };
+  queueButton.ondblclick = function () {
+    queueButtonDblClick(server_i);
+  };
 
   var queueSong = document.createElement("iframe");
   queueSong.src = "http://ext.nicovideo.jp/thumb/" + serverSong.name;
@@ -100,6 +119,7 @@ function addQueue(serverSong, server_i) {
   clientQueue.push(serverSong);
 
 }
+
 function updateQueue(serverSong, server_i) {
   var clientEntry = document.getElementById("queue_" + server_i);
   clientEntry.src = "http://ext.nicovideo.jp/thumb/" + serverSong.name;
@@ -133,17 +153,21 @@ function checkStage() {
   }
 
   var sceneVideo = stageFrame.contentDocument.getElementById("sceneVideo");
+  if (!sceneVideo) {
+    return false;
+  }
+
   if (sceneVideo.error) {
     var clientSong = clientQueue[currentStage];
     if (!clientSong.loadedTemp) {
       clientSong.loadedTemp = true;
-      var tempWindow = window.open("http://www.nicovideo.jp/watch/" + clientSong.name, "_blank",
+      clientSong.tempWindow = window.open("http://www.nicovideo.jp/watch/" + clientSong.name, "_blank",
         "width=100, height=100, top=0, left=600");
-      tempWindow.blur();
+      clientSong.tempWindow.blur();
       window.focus();
 
       setTimeout(function() {
-        tempWindow.close();
+        clientSong.tempWindow.close();
       }, 5000);
     }
 
@@ -191,7 +215,8 @@ function updateStage() {
   updateButtons();
 }
 
-function updateButtons() {
+function updateButtons(dontScroll) {
+  var scrollToId = -1;
   var buttons = document.getElementsByClassName("queueButton");
   for (var i=0; i<buttons.length; i++) {
     var queueButton = buttons[i];
@@ -202,18 +227,65 @@ function updateButtons() {
   if (currentStage > -1) {
     var queueButton = document.getElementById("queueButton_" + currentStage);
     queueButton.className += " queueButtonCurrent";
+    scrollToId = currentStage;
+  }
+
+  if (highlightStage > -1) {
+    var queueButton = document.getElementById("queueButton_" + highlightStage);
+    queueButton.className += " queueButtonHighlight";
+    scrollToId = highlightStage;
+
+    var currentIdField = document.getElementById("currentIdField");
+    currentIdField.value = highlightStage;
+  }
+
+  var deleteSongButton = document.getElementById("deleteSongButton");
+  var raiseSongButton = document.getElementById("raiseSongButton");
+  var lowerSongButton = document.getElementById("lowerSongButton");
+  var actIndex = getActIndex();
+  deleteSongButton.disabled = actIndex < 0 || actIndex >= clientQueue.length;
+  raiseSongButton.disabled = actIndex < 1 || actIndex >= clientQueue.length;
+  lowerSongButton.disabled = actIndex < 0 || actIndex >= clientQueue.length-1;
+
+  if (scrollToId > -1 && !dontScroll) {
+    var scrollToEntry = document.getElementById("queueEntry_" + scrollToId);
+    var queueContainer = document.getElementById("queueContainer");
+    var queueHeight = queueContainer.offsetHeight;
+    var scrolled = queueContainer.scrollTop;
+
+    var top = scrollToEntry.offsetTop;
+    var bottom = top + scrollToEntry.offsetHeight;
+    if (top - scrolled < 0) {
+      queueContainer.scrollTop = top;
+    } else if (bottom - scrolled > queueHeight) {
+      queueContainer.scrollTop = bottom - queueHeight;
+    }
   }
 }
 
 function queueButtonMouseover(index) {
-  updateButtons();
+  updateButtons(true);
 
   var currentIdField = document.getElementById("currentIdField");
   currentIdField.value = index;
 }
 
 function queueButtonClick(index) {
-  console.log("press "+index);
+  highlightStage = index;
+  updateButtons();
+}
+
+function queueButtonDblClick(index) {
+  setCurrent();
+}
+
+function queueContainerLeave() {
+  var currentIdField = document.getElementById("currentIdField");
+  if (highlightStage > -1) {
+    currentIdField.value = highlightStage;
+  } else if (currentStage > -1) {
+    currentIdField.value = currentStage;
+  }
 }
 
 function updateCurrentField(field, event) {
@@ -234,14 +306,13 @@ function updateCurrentField(field, event) {
     field.value = newId;
   }
 
+  highlightStage = field.value;
   updateButtons();
-  var queueButton = document.getElementById("queueButton_" + field.value);
-  queueButton.className += " queueButtonHighlight";
 
   return false;
 }
 
-function setCurrent() {
+function setCurrent(dontResetHighlight) {
   var currentIdField = document.getElementById("currentIdField");
 
   var newId = parseInt(currentIdField.value);
@@ -258,7 +329,80 @@ function setCurrent() {
     currentStage = -1;
   } else {
     currentStage = newId;
+    if (highlightStage == currentStage && !dontResetHighlight) {
+      highlightStage = -1;
+    }
     updateStage();
+  }
+}
+
+function deleteSong() {
+  var actIndex = getActIndex();
+  if (actIndex >= 0 && actIndex < clientQueue.length) {
+    httpRequest("actSong.php?act=delete&id=" + clientQueue[actIndex].id, reloadQueue);
+
+    if (highlightStage >= clientQueue.length) {
+      highlightStage = clientQueue.length-1;
+      updateButtons();
+    }
+  }
+}
+
+function raiseSong() {
+  var actIndex = getActIndex();
+  if (actIndex > 0 && actIndex < clientQueue.length) {
+    httpRequest("actSong.php?act=raise&id=" + clientQueue[actIndex].id, reloadQueue);
+
+    if (actIndex == highlightStage) {
+      highlightStage--;
+    } else if (actIndex == currentStage) {
+      currentStage--;
+    }
+  }
+}
+
+function lowerSong() {
+  var actIndex = getActIndex();
+  if (actIndex >= 0 && actIndex < clientQueue.length-1) {
+    httpRequest("actSong.php?act=lower&id=" + clientQueue[actIndex].id, reloadQueue);
+
+    if (actIndex == highlightStage) {
+      highlightStage++;
+    } else if (actIndex == currentStage) {
+      currentStage++;
+    }
+  }
+}
+
+function bodyKeyPress(event) {
+  var key = String.fromCharCode(event.charCode);
+
+  if (key == "j" && highlightStage < clientQueue.length-1) {
+    highlightStage++;
+    updateButtons();
+  } else if (key == "k" && highlightStage > 0) {
+    highlightStage--;
+    updateButtons();
+  } else if (key == "d") {
+    deleteSong();
+  } else if (key == "o") {
+    setCurrent(true);
+  } else if (key == "n") {
+    lowerSong();
+  } else if (key == "p") {
+    raiseSong();
+  } else if (key == " ") {
+    var stageFrame = document.getElementById("stageFrame");
+    if (stageFrame) {
+      var sceneVideo = stageFrame.contentDocument.getElementById("sceneVideo");
+      if (sceneVideo) {
+        if (sceneVideo.paused) {
+          sceneVideo.play();
+        } else {
+          sceneVideo.pause();
+        }
+      }
+    }
   }
 }
 
