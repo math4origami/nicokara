@@ -44,25 +44,5 @@ if (isset($_GET["address"])) {
 ?>
 </div>
 
-<div id="bookmark"></div>
-
-<script type="text/javascript">
-var link = document.createElement("a");
-link.innerHTML = "Add Song";
-link.href = "javascript:(function() { \
-  var bookmark = document.createElement('script'); \
-  bookmark.src = '" + window.location.origin + window.location.pathname + "?address=' + \
-    encodeURIComponent(window.location.origin + window.location.pathname); \
-  document.body.appendChild(bookmark); \
-})();";
-
-var bookmark = document.getElementById("bookmark");
-bookmark.appendChild(link);
-</script>
-
-<div>
-<a href="nicokaraExtension.user.js">Nicokara Extension</a>
-</div>
-
 </body>
 </html>

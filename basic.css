@@ -111,3 +111,20 @@ iframe.queue {
   width: 312;
   height: 185;
 }
+
+div#help {
+  position: fixed;
+  width: 200;
+  height: 200;
+  top: 50%;
+  left: 50%;
+  margin-top: -100;
+  margin-left: -100; 
+  visibility: hidden;
+  background-color: #eee;
+  padding: 20;
+}
+
+div#help:hover {
+  cursor: pointer;
+}

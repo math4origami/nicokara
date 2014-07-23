@@ -403,7 +403,19 @@ function bodyKeyPress(event) {
         }
       }
     }
+  } else if (key == "?") {
+    displayHelp();
   }
+}
+
+function displayHelp() {
+  var help = document.getElementById("help").style.visibility;
+  if (help == "hidden") {
+    help = "visible";
+  } else {
+    help = "hidden";
+  }
+  document.getElementById("help").style.visibility = help;
 }
 
 run(reloadQueue, 2000);
