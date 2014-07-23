@@ -117,12 +117,12 @@ function popQueue() {
 }
 
 function refreshStage() {
-  if (shouldUpdateStage()) {
+  if (checkStage()) {
     incrementStage();
   }
 }
 
-function shouldUpdateStage() {
+function checkStage() {
   if (currentStage < 0) {
     return true;
   }
@@ -132,13 +132,27 @@ function shouldUpdateStage() {
     return false;
   }
 
-  try {
-    var status = stageFrame.contentDocument.getElementsByTagName("embed")[0].ext_getStatus();
-    if (status == "end") {
-      return true;
+  var sceneVideo = stageFrame.contentDocument.getElementById("sceneVideo");
+  if (sceneVideo.error) {
+    var clientSong = clientQueue[currentStage];
+    if (!clientSong.loadedTemp) {
+      clientSong.loadedTemp = true;
+      var tempWindow = window.open("http://www.nicovideo.jp/watch/" + clientSong.name, "_blank",
+        "width=100, height=100, top=0, left=600");
+      tempWindow.blur();
+      window.focus();
+
+      setTimeout(function() {
+        tempWindow.close();
+      }, 5000);
     }
-  } catch (error) {
-    //not loaded
+
+    sceneVideo.load();
+    return false;
+  }
+
+  if (sceneVideo.ended) {
+    return true;
   }
 
   return false;
