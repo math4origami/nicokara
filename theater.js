@@ -126,6 +126,13 @@ function updateQueue(serverSong, server_i) {
 
   clientQueue[server_i] = serverSong;
   if (server_i == currentStage) {
+    var stageFrame = document.getElementById("stageFrame");
+    if (stageFrame) {
+      var nicokaraScenes = stageFrame.contentDocument.getElementsByClassName("nicokaraScene");
+      if (nicokaraScenes.length > 0 && nicokaraScenes[0].id == serverSong.name) {
+        return;
+      }
+    }
     updateStage();
   }
 }
@@ -157,22 +164,21 @@ function checkStage() {
     return false;
   }
 
-  if (sceneVideo.error) {
-    var clientSong = clientQueue[currentStage];
+  var clientSong = clientQueue[currentStage];
+  if (sceneVideo.readyState != 4) {
     if (!clientSong.loadedTemp) {
       clientSong.loadedTemp = true;
       clientSong.tempWindow = window.open("http://www.nicovideo.jp/watch/" + clientSong.name, "_blank",
         "width=100, height=100, top=0, left=600");
       clientSong.tempWindow.blur();
       window.focus();
-
-      setTimeout(function() {
-        clientSong.tempWindow.close();
-      }, 5000);
     }
 
     sceneVideo.load();
     return false;
+  } else if (clientSong.tempWindow) {
+      clientSong.tempWindow.close();
+      clientSong.tempWindow = null;
   }
 
   if (sceneVideo.ended) {
@@ -212,6 +218,7 @@ function updateStage() {
   var currentIdField = document.getElementById("currentIdField");
   currentIdField.value = currentStage;
 
+  clientSong.loadedTemp = false;
   updateButtons();
 }
 
@@ -264,8 +271,6 @@ function updateButtons(dontScroll) {
 }
 
 function queueButtonMouseover(index) {
-  updateButtons(true);
-
   var currentIdField = document.getElementById("currentIdField");
   currentIdField.value = index;
 }
@@ -321,6 +326,7 @@ function setCurrent(dontResetHighlight) {
   } else if (newId >= clientQueue.length) {
     newId = clientQueue.length - 1;
   }
+
   if (newId != currentIdField.value) {
     currentIdField.value = newId;
   }
@@ -341,10 +347,15 @@ function deleteSong() {
   if (actIndex >= 0 && actIndex < clientQueue.length) {
     httpRequest("actSong.php?act=delete&id=" + clientQueue[actIndex].id, reloadQueue);
 
+    if (currentStage >= highlightStage) {
+      currentStage--;
+      updateButtons();
+    }
+
     if (highlightStage >= clientQueue.length) {
       highlightStage = clientQueue.length-1;
       updateButtons();
-    }
+    } 
   }
 }
 
@@ -355,8 +366,11 @@ function raiseSong() {
 
     if (actIndex == highlightStage) {
       highlightStage--;
-    } else if (actIndex == currentStage) {
+    }
+    if (actIndex == currentStage) {
       currentStage--;
+    } else if (actIndex-1 == currentStage) {
+      currentStage++;
     }
   }
 }
@@ -368,8 +382,11 @@ function lowerSong() {
 
     if (actIndex == highlightStage) {
       highlightStage++;
-    } else if (actIndex == currentStage) {
+    }
+    if (actIndex == currentStage) {
       currentStage++;
+    } else if (actIndex+1 == currentStage) {
+      currentStage--;
     }
   }
 }
@@ -418,5 +435,5 @@ function displayHelp() {
   document.getElementById("help").style.visibility = help;
 }
 
-run(reloadQueue, 2000);
-run(refreshStage, 1000);
+run(reloadQueue, 1000);
+run(refreshStage, 5000);
