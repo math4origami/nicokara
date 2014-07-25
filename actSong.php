@@ -17,8 +17,7 @@ $id = $_GET["id"];
 if ($act == "delete") {
   $mysqli->query("DELETE FROM queued_song WHERE id = $id");
 } else if ($act == "raise") {
-  $i=1;
-  for (; $i<count($queue); $i++) {
+  for ($i=1; $i<count($queue); $i++) {
     if ($queue[$i]["id"] == $id) {
       $other = $queue[$i-1]["id"];
       $otherName = $queue[$i-1]["name"];
@@ -28,8 +27,7 @@ if ($act == "delete") {
     }
   }
 } else if ($act == "lower") {
-  $i=0;
-  for (; $i<count($queue)-1; $i++) {
+  for ($i=0; $i<count($queue)-1; $i++) {
     if ($queue[$i]["id"] == $id) {
       $other = $queue[$i+1]["id"];
       $otherName = $queue[$i+1]["name"];

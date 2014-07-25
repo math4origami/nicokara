@@ -2,6 +2,22 @@
 var clientQueue = [];
 var currentStage = -1;
 var highlightStage = -1;
+var isLocal = false;
+
+function setLocal() {
+  var search = window.location.search;
+  if (search.length > 0) {
+    search = search.substr(1);
+    var pairs = search.split("&");
+    for (var i in pairs) {
+      var tags = pairs[i].split("=");
+      if (tags[0] == "local" && tags[1] == "1") {
+        isLocal = true;
+        return;
+      }
+    }
+  }
+}
 
 function removeAllChildren(node) {
   while (node.hasChildNodes()) {
@@ -282,6 +298,7 @@ function queueButtonClick(index) {
 }
 
 function queueButtonDblClick(index) {
+  highlightStage = index;
   setCurrent();
 }
 
@@ -318,10 +335,8 @@ function updateCurrentField(field, event) {
   return false;
 }
 
-function setCurrent(dontResetHighlight) {
-  var currentIdField = document.getElementById("currentIdField");
-
-  var newId = parseInt(currentIdField.value);
+function setCurrent() {
+  var newId = getActIndex();
   if (newId < 0 || clientQueue.length <= 0) {
     newId = 0;
   } else if (newId >= clientQueue.length) {
@@ -332,13 +347,11 @@ function setCurrent(dontResetHighlight) {
     currentIdField.value = newId;
   }
 
+  highlightStage = -1;
   if (clientQueue.length <= 0) {
     currentStage = -1;
   } else {
-    currentStage = newId;
-    if (highlightStage == currentStage && !dontResetHighlight) {
-      highlightStage = -1;
-    }
+    currentStage = parseInt(newId);
     updateStage();
   }
 }
@@ -420,7 +433,7 @@ function bodyKeyPress(event) {
   } else if (key == "d") {
     deleteSong();
   } else if (key == "o") {
-    setCurrent(true);
+    setCurrent();
   } else if (key == "n") {
     lowerSong();
   } else if (key == "p") {
@@ -440,6 +453,7 @@ function bodyKeyPress(event) {
   } else if (key == "?") {
     displayHelp();
   }
+  return false;
 }
 
 function displayHelp() {
@@ -452,5 +466,6 @@ function displayHelp() {
   document.getElementById("help").style.visibility = help;
 }
 
+setLocal();
 run(reloadQueue, 1000);
 run(refreshStage, 2000);
