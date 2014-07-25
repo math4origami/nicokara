@@ -5,43 +5,10 @@ var highlightStage = -1;
 var isLocal = false;
 
 function setLocal() {
-  var search = window.location.search;
-  if (search.length > 0) {
-    search = search.substr(1);
-    var pairs = search.split("&");
-    for (var i in pairs) {
-      var tags = pairs[i].split("=");
-      if (tags[0] == "local" && tags[1] == "1") {
-        isLocal = true;
-        return;
-      }
-    }
+  var args = getArgs();
+  if (args.local) {
+    isLocal = true;
   }
-}
-
-function removeAllChildren(node) {
-  while (node.hasChildNodes()) {
-    node.removeChild(node.lastChild);
-  }
-}
-
-function run(callback, interval) {
-  callback();
-  setInterval(callback, interval);
-}
-
-function httpRequest(url, callback) {
-  var xmlHttp = new XMLHttpRequest();
-  xmlHttp.onreadystatechange = function() {
-    if (xmlHttp.readyState==4 && xmlHttp.status==200) {
-      if (callback) {
-        callback(xmlHttp.responseText);
-      }
-      xmlHttp.onreadystatechange = null;
-    }
-  }
-  xmlHttp.open("GET", url, true);
-  xmlHttp.send();
 }
 
 function getActIndex() {
@@ -52,31 +19,20 @@ function getActIndex() {
   }
 }
 
-function loadStage() {
-  var platform = document.createElement("iframe");
-  platform.src = "scene.php";
-  platform.id = "stage";
-  platform.scrolling = "no";
-
-  var stage = document.getElementById("stage");
-  removeAllChildren(stage);
-  stage.appendChild(platform); 
-
-  var upcoming = document.createElement("iframe");
-  upcoming.src = "http://ext.nicovideo.jp/thumb/sm17209598";
-  upcoming.scrolling = "no";
-  upcoming.className = "queue";
-
-  var queue = document.getElementById("queue");
-  queue.appendChild(upcoming);
-}
-
 function reloadQueue() {
-  httpRequest("queue.php", reloadQueueCallback);
+  if (isLocal) {
+    localGetQueue(reloadQueueCallback);
+  } else {
+    httpRequest("queue.php", reloadQueueServer); 
+  }
 }
 
-function reloadQueueCallback(response) {
+function reloadQueueServer(response) {
   var serverQueue = JSON.parse(response);
+  reloadQueueCallback(serverQueue);
+}
+
+function reloadQueueCallback(serverQueue) {
   var changed = false;
   for (var server_i in serverQueue) {
     var serverSong = serverQueue[server_i];
@@ -196,6 +152,10 @@ function checkStage() {
   } else if (clientSong.tempWindow) {
       clientSong.tempWindow.close();
       clientSong.tempWindow = null;
+  }
+
+  if (sceneVideo.volume == 1) {
+    sceneVideo.volume = .25;
   }
 
   if (sceneVideo.ended) {
@@ -359,7 +319,11 @@ function setCurrent() {
 function deleteSong() {
   var actIndex = getActIndex();
   if (actIndex >= 0 && actIndex < clientQueue.length) {
-    httpRequest("actSong.php?act=delete&id=" + clientQueue[actIndex].id, reloadQueue);
+    if (isLocal) {
+      localDeleteSong(clientQueue[actIndex].id, reloadQueue);
+    } else {
+      httpRequest("actSong.php?act=delete&id=" + clientQueue[actIndex].id, reloadQueue);
+    }
 
     if (currentStage >= highlightStage) {
       currentStage--;
@@ -376,7 +340,11 @@ function deleteSong() {
 function raiseSong() {
   var actIndex = getActIndex();
   if (actIndex > 0 && actIndex < clientQueue.length) {
-    httpRequest("actSong.php?act=raise&id=" + clientQueue[actIndex].id, reloadQueue);
+    if (isLocal) {
+      localRaiseSong(clientQueue[actIndex].id, reloadQueue);
+    } else {
+      httpRequest("actSong.php?act=raise&id=" + clientQueue[actIndex].id, reloadQueue);
+    }
 
     if (actIndex == highlightStage) {
       highlightStage--;
@@ -392,7 +360,11 @@ function raiseSong() {
 function lowerSong() {
   var actIndex = getActIndex();
   if (actIndex >= 0 && actIndex < clientQueue.length-1) {
-    httpRequest("actSong.php?act=lower&id=" + clientQueue[actIndex].id, reloadQueue);
+    if (isLocal) {
+      localLowerSong(clientQueue[actIndex].id, reloadQueue);
+    } else {
+      httpRequest("actSong.php?act=lower&id=" + clientQueue[actIndex].id, reloadQueue);
+    }
 
     if (actIndex == highlightStage) {
       highlightStage++;
