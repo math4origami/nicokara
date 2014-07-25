@@ -16,7 +16,7 @@ function query(command, args, callback) {
 }
 
 function createWebSql() {
-  query("DROP TABLE `queued_song`");
+  query("DROP TABLE IF EXISTS `queued_song`");
   query("CREATE TABLE IF NOT EXISTS `queued_song` ( \
     `id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, \
     `queue_id` int(11) NOT NULL, \
