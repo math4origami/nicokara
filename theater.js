@@ -173,8 +173,9 @@ function checkStage() {
       clientSong.tempWindow.blur();
       window.focus();
     }
-
-    sceneVideo.load();
+    if (sceneVideo.readyState < 1) {
+      sceneVideo.load();
+    }
     return false;
   } else if (clientSong.tempWindow) {
       clientSong.tempWindow.close();
@@ -394,11 +395,27 @@ function lowerSong() {
 function bodyKeyPress(event) {
   var key = String.fromCharCode(event.charCode);
 
-  if (key == "j" && highlightStage < clientQueue.length-1) {
-    highlightStage++;
+  if (key == "j") {
+    if (highlightStage < 0 && currentStage > -1) {
+      if (currentStage < clientQueue.length-1) {
+        highlightStage = currentStage+1;
+      } else {
+        highlightStage = currentStage;
+      }
+    } else if (highlightStage < clientQueue.length-1) {
+      highlightStage++;
+    }
     updateButtons();
-  } else if (key == "k" && highlightStage > 0) {
-    highlightStage--;
+  } else if (key == "k") {
+    if (highlightStage < 0 && currentStage > -1) {
+      if (currentStage > 0) {
+        highlightStage = currentStage-1;
+      } else {
+        highlightStage = currentStage;
+      }
+    } else if (highlightStage > 0) {
+      highlightStage--;
+    }
     updateButtons();
   } else if (key == "d") {
     deleteSong();
@@ -436,4 +453,4 @@ function displayHelp() {
 }
 
 run(reloadQueue, 1000);
-run(refreshStage, 5000);
+run(refreshStage, 2000);
