@@ -98,12 +98,9 @@ function updateQueue(serverSong, server_i) {
 
   clientQueue[server_i] = serverSong;
   if (server_i == currentStage) {
-    var stageFrame = document.getElementById("stageFrame");
-    if (stageFrame) {
-      var nicokaraScenes = stageFrame.contentDocument.getElementsByClassName("nicokaraScene");
-      if (nicokaraScenes.length > 0 && nicokaraScenes[0].id == serverSong.name) {
-        return;
-      }
+    var nicokaraScenes = document.getElementsByClassName("nicokaraScene");
+    if (nicokaraScenes.length > 0 && nicokaraScenes[0].id == serverSong.name) {
+      return;
     }
     updateStage();
   }
@@ -126,12 +123,7 @@ function checkStage() {
     return true;
   }
 
-  var stageFrame = document.getElementById("stageFrame");
-  if (!stageFrame) {
-    return false;
-  }
-
-  var sceneVideo = stageFrame.contentDocument.getElementById("sceneVideo");
+  var sceneVideo = document.getElementById("sceneVideo");
   if (!sceneVideo) {
     return false;
   }
@@ -142,7 +134,10 @@ function checkStage() {
       clientSong.loadedTemp = true;
       clientSong.tempWindow = window.open("http://www.nicovideo.jp/watch/" + clientSong.name, "_blank",
         "width=100, height=100, top=0, left=600");
-      clientSong.tempWindow.blur();
+      if (clientSong.tempWindow) {
+        clientSong.tempWindow.blur();
+      }
+      
       window.focus();
     }
     if (sceneVideo.readyState < 1) {
@@ -183,10 +178,9 @@ function updateStage() {
 
   var clientSong = clientQueue[currentStage];
 
-  var scene = document.createElement("iframe");
-  scene.src = "scene.php?name=" + clientSong.name;
-  scene.id = "stageFrame";
-  scene.scrolling = "no";
+  var scene = document.createElement("div");
+  scene.className = "nicokaraScene";
+  scene.id = clientSong.name;
 
   var stage = document.getElementById("stage");
   removeAllChildren(stage);
@@ -411,15 +405,12 @@ function bodyKeyPress(event) {
   } else if (key == "p") {
     raiseSong();
   } else if (key == " ") {
-    var stageFrame = document.getElementById("stageFrame");
-    if (stageFrame) {
-      var sceneVideo = stageFrame.contentDocument.getElementById("sceneVideo");
-      if (sceneVideo) {
-        if (sceneVideo.paused) {
-          sceneVideo.play();
-        } else {
-          sceneVideo.pause();
-        }
+    var sceneVideo = document.getElementById("sceneVideo");
+    if (sceneVideo) {
+      if (sceneVideo.paused) {
+        sceneVideo.play();
+      } else {
+        sceneVideo.pause();
       }
     }
   } else if (key == "?") {
