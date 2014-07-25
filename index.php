@@ -1,5 +1,10 @@
 <html>
-<head></head>
+<head>
+<script type="text/javascript">
+var address = window.location.origin + window.location.pathname;
+address = address.replace("index.php", "");
+</script>
+</head>
 
 <body>
 <div><h1>Nicokara</h1></div>
@@ -12,7 +17,7 @@ var link = document.createElement("a");
 link.innerHTML = "Nicokara Add Song";
 link.href = "javascript:(function() { \
   var bookmark = document.createElement('script'); \
-  bookmark.src = '" + window.location.origin + "/nicokara/addSong.php?address=' + \
+  bookmark.src = '" + address + "addSong.php?address=' + \
     encodeURIComponent(window.location.origin + window.location.pathname); \
   document.body.appendChild(bookmark); \
 })();";
@@ -34,10 +39,11 @@ Extension/script: <a href="extension.crx">Nicokara Extension</a>
 var link = document.createElement("a");
 link.innerHTML = "Local Add Song";
 link.href = "javascript:(function() { \
-  var bookmark = document.createElement('script'); \
-  bookmark.src = '" + window.location.origin + "/nicokara/addSong.php?address=' + \
+  var localPage = document.createElement('a'); \
+  localPage.href = '" + address + "addSong.html?address=' + \
     encodeURIComponent(window.location.origin + window.location.pathname); \
-  document.body.appendChild(bookmark); \
+  localPage.id = 'nicokaraAddSong'; \
+  document.body.appendChild(localPage);\
 })();";
 
 var bookmark = document.getElementById("localBookmark");

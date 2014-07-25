@@ -1,0 +1,50 @@
+<html>
+<head>
+<script type="text/javascript" src="utils.js"></script>
+<script type="text/javascript" src="webSql.js"></script>
+</head>
+
+<body>
+
+<div id="result"></div>
+<script type="text/javascript">
+function addSong() {
+  var args = getArgs();
+  var parser;
+  var result = document.getElementById("result");
+  if (args.address) {
+    var address = decodeURIComponent(args.address);
+    parser = document.createElement("a");
+    parser.href = address;
+
+    if (parser.hostname && parser.pathname &&
+        parser.hostname.indexOf("nicovideo.jp") > -1) {
+      var tags = parser.pathname.split("/");
+      var name = tags[tags.length - 1];
+
+      if (name.indexOf("sm") > -1) {
+        localInsertSong(name, function() {
+          result.innerHTML = "Success, added song: " + name;
+          return true;
+        });
+      }
+
+      result.innerHTML = "Could not find song in: " + name;
+      return false;
+    }
+    result.innerHTML = "No nico video found: " + address;
+    return false;
+  }
+  result.innerHTML = "No address tag: " + window.location.href;
+  return false;
+}
+
+addSong();
+</script>
+
+<div id="bookmark">Bookmarklet: </div>
+<script type="text/javascript">
+</script>
+
+</body>
+</html>

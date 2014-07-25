@@ -27,4 +27,13 @@ function autoload () {
   }
 }
 
+function autoadd () {
+  var nicokaraAddSong = document.getElementById("nicokaraAddSong");
+  if (nicokaraAddSong) {
+    chrome.runtime.sendMessage({ url: nicokaraAddSong.href });
+    nicokaraAddSong.parentNode.removeChild(nicokaraAddSong);
+  }
+}
+
 setInterval(autoload, 1000);
+setInterval(autoadd, 1000);
