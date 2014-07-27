@@ -177,10 +177,6 @@ function checkStage() {
       clientSong.tempWindow = null;
   }
 
-  if (sceneVideo.volume == 1) {
-    sceneVideo.volume = .25;
-  }
-
   if (sceneVideo.ended) {
     return true;
   }
