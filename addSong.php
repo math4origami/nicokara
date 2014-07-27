@@ -7,7 +7,7 @@
 <?php
 include_once "mysql.php";
 
-function addSong($name) {
+function addSong($type, $name) {
   global $mysqli;
 
   $result = $mysqli->query("SELECT * FROM queued_song WHERE queue_id=0 ORDER BY queue_index");
@@ -20,8 +20,8 @@ function addSong($name) {
     }
   }
 
-  $result = $mysqli->query("INSERT INTO queued_song (queue_id, queue_index, name)
-    VALUES (0, " . ($last + 1) . ", '$name')");
+  $result = $mysqli->query("INSERT INTO queued_song (queue_id, queue_index, type, name)
+    VALUES (0, " . ($last + 1) . ", $type, '$name')");
 }
 
 if (isset($_GET["address"])) {
@@ -36,29 +36,33 @@ if (isset($_GET["address"])) {
     $name = $tags[count($tags) - 1];
 
     if (strpos($name, "sm") !== false) {
-      addSong($name);
+      addSong(0, $name);
     }
   }
+} else if (isset($_GET["contentsId"]) && 
+           isset($_GET["karaokeContentsId"]) && 
+           isset($_GET["siteCode"])) {
+  $damData = array(
+    "contentsId" => $_GET["contentsId"],
+    "karaokeContentsId" => $_GET["karaokeContentsId"],
+    "siteCode" => $_GET["siteCode"]
+  );
+
+  if (isset($_GET["title"])) {
+    $damData["title"] = $_GET["title"];
+  }
+  if (isset($_GET["artist"])) {
+    $damData["artist"] = $_GET["artist"];
+  }
+  if (isset($_GET["duration"])) {
+    $damData["duration"] = $_GET["duration"];
+  }
+
+  addSong(1, json_encode($damData, JSON_UNESCAPED_UNICODE));
 }
 
 ?>
 </div>
-
-<div id="bookmark">Bookmarklet: </div>
-
-<script type="text/javascript">
-var link = document.createElement("a");
-link.innerHTML = "Nicokara Add Song";
-link.href = "javascript:(function() { \
-  var bookmark = document.createElement('script'); \
-  bookmark.src = '" + window.location.origin + window.location.pathname + "?address=' + \
-    encodeURIComponent(window.location.origin + window.location.pathname); \
-  document.body.appendChild(bookmark); \
-})();";
-
-var bookmark = document.getElementById("bookmark");
-bookmark.appendChild(link);
-</script>
 
 </body>
 </html>

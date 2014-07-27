@@ -87,8 +87,8 @@ var localRaiseSong = function (id, callback) {
       var song = queue[i];
       if (song.id == id) {
         var other = queue[i-1];
-        query("UPDATE queued_song SET name=? WHERE id=?", [other.name, id], finished);
-        query("UPDATE queued_song SET name=? WHERE id=?", [song.name, other.id], finished);
+        query("UPDATE queued_song SET name=?, type=? WHERE id=?", [other.name, other.type, id], finished);
+        query("UPDATE queued_song SET name=?, type=? WHERE id=?", [song.name, song.type, other.id], finished);
         found = true;
       }
     }
@@ -113,8 +113,8 @@ var localLowerSong = function (id, callback) {
       var song = queue[i];
       if (song.id == id) {
         var other = queue[i+1];
-        query("UPDATE queued_song SET name=? WHERE id=?", [other.name, id], finished);
-        query("UPDATE queued_song SET name=? WHERE id=?", [song.name, other.id], finished);
+        query("UPDATE queued_song SET name=?, type=? WHERE id=?", [other.name, other.type, id], finished);
+        query("UPDATE queued_song SET name=?, type=? WHERE id=?", [song.name, song.type, other.id], finished);
         found = true;
       }
     }

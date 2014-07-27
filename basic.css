@@ -2,6 +2,7 @@ body {
   margin: 0;
   padding: 0;
   height: 100%;
+  font-family:'ヒラギノ角ゴ Pro W3','Hiragino Kaku Gothic Pro','メイリオ',Meiryo,'ＭＳ Ｐゴシック',sans-serif;
 }
 
 div#theater {
@@ -35,6 +36,18 @@ div#menu {
   padding: 2;
 }
 
+input#currentIdField {
+  width: 130;
+}
+
+input#raiseSongButton:disabled {
+  background-color: #ccc;
+}
+
+input#lowerSongButton:disabled {
+  background-color: #ccc;
+}
+
 div#queueContainer {
   margin: 0;
   padding: 0;
@@ -63,7 +76,7 @@ div#stage {
 }
 
 
-iframe#stageFrame {
+iframe#sceneFrame {
   border: 0;
   height: 100%;
   width: 100%;
@@ -87,17 +100,9 @@ div.queueButton {
   height: 185; 
 }
 
-div.queueButtonCurrent {
-  width: 292;
-  height: 165;
-  border: 10 #44f solid;
-}
-
 div.queueButton:hover {
   cursor: pointer;
-  width: 292;
-  height: 165;
-  border: 10 #7bf solid;
+  background-color: rgba(119, 187, 255, .25);
 }
 
 div.queueButtonHighlight {
@@ -106,10 +111,36 @@ div.queueButtonHighlight {
   border: 10 #7bf solid;
 }
 
+div.queueButtonCurrent {
+  width: 292;
+  height: 165;
+  border: 10 #44f solid;
+}
+
 iframe.queue {
   border: 0;
   width: 312;
   height: 185;
+}
+
+div.damQueue {
+  width: 272;
+  height: 145;
+  padding: 10;
+  border: 10 #ccc solid;
+}
+
+div.damTitle {
+  font-size: larger;
+  font-weight: bold;
+}
+
+img.damLogo {
+  position: absolute;
+  z-index: -1;
+  width: 200;
+  bottom: 20;
+  right: 20;
 }
 
 div#help {
@@ -127,4 +158,9 @@ div#help {
 
 div#help:hover {
   cursor: pointer;
+}
+
+span.helpKey {
+  width: 40;
+  display: inline-block;
 }

@@ -59,6 +59,44 @@ function reloadQueueCallback(serverQueue) {
   }
 }
 
+function buildQueueSong(serverSong, server_i) {
+  var queueSong = null;
+  if (serverSong.type == 1) {
+    var damData = JSON.parse(serverSong.name);
+
+    var damArtist = document.createElement("div");
+    damArtist.className = "damArtist";
+    damArtist.innerHTML = damData.artist;
+
+    var damTitle = document.createElement("div");
+    damTitle.className = "damTitle";
+    damTitle.innerHTML = damData.title;
+
+    var damDuration = document.createElement("div");
+    damDuration.className = "damDuration";
+    damDuration.innerHTML = damData.duration;
+
+    var damLogo = document.createElement("img");
+    damLogo.className = "damLogo";
+    damLogo.src = "clubdam.gif";
+
+    queueSong = document.createElement("div");
+    queueSong.className = "damQueue";
+    queueSong.appendChild(damLogo);
+    queueSong.appendChild(damArtist);
+    queueSong.appendChild(damTitle);
+    queueSong.appendChild(damDuration);
+  } else {
+    queueSong = document.createElement("iframe");
+    queueSong.src = "http://ext.nicovideo.jp/thumb/" + serverSong.name;
+    queueSong.scrolling = "no";
+    queueSong.className = "queue";
+  }
+  queueSong.id = "queue_" + server_i;
+
+  return queueSong;
+}
+
 function addQueue(serverSong, server_i) {
   var queueEntry = document.createElement("div");
   queueEntry.className = "queueEntry";
@@ -77,11 +115,7 @@ function addQueue(serverSong, server_i) {
     queueButtonDblClick(server_i);
   };
 
-  var queueSong = document.createElement("iframe");
-  queueSong.src = "http://ext.nicovideo.jp/thumb/" + serverSong.name;
-  queueSong.scrolling = "no";
-  queueSong.className = "queue";
-  queueSong.id = "queue_" + server_i;
+  var queueSong = buildQueueSong(serverSong, server_i);
 
   var queue = document.getElementById("queue");
   queueEntry.appendChild(queueButton);
@@ -89,21 +123,17 @@ function addQueue(serverSong, server_i) {
   queue.appendChild(queueEntry);
 
   clientQueue.push(serverSong);
-
 }
 
 function updateQueue(serverSong, server_i) {
   var clientEntry = document.getElementById("queue_" + server_i);
-  clientEntry.src = "http://ext.nicovideo.jp/thumb/" + serverSong.name;
+  var clientParent = clientEntry.parentNode;
+  clientParent.removeChild(clientEntry);
+  
+  var newEntry = buildQueueSong(serverSong, server_i);
+  clientParent.appendChild(newEntry);
 
   clientQueue[server_i] = serverSong;
-  if (server_i == currentStage) {
-    var nicokaraScenes = document.getElementsByClassName("nicokaraScene");
-    if (nicokaraScenes.length > 0 && nicokaraScenes[0].id == serverSong.name) {
-      return;
-    }
-    updateStage();
-  }
 }
 
 function popQueue() {
@@ -140,9 +170,7 @@ function checkStage() {
       
       window.focus();
     }
-    if (sceneVideo.readyState < 1) {
-      sceneVideo.load();
-    }
+    sceneVideo.load();
     return false;
   } else if (clientSong.tempWindow) {
       clientSong.tempWindow.close();
@@ -179,7 +207,11 @@ function updateStage() {
   var clientSong = clientQueue[currentStage];
 
   var scene = document.createElement("div");
-  scene.className = "nicokaraScene";
+  if (clientSong.type == 1) {
+    scene.className = "damkaraScene"; 
+  } else {
+    scene.className = "nicokaraScene";
+  }
   scene.id = clientSong.name;
 
   var stage = document.getElementById("stage");
@@ -195,6 +227,7 @@ function updateStage() {
 
 function updateButtons(dontScroll) {
   var scrollToId = -1;
+  var scrollToCurrent = false;
   var buttons = document.getElementsByClassName("queueButton");
   for (var i=0; i<buttons.length; i++) {
     var queueButton = buttons[i];
@@ -206,12 +239,14 @@ function updateButtons(dontScroll) {
     var queueButton = document.getElementById("queueButton_" + currentStage);
     queueButton.className += " queueButtonCurrent";
     scrollToId = currentStage;
+    scrollToCurrent = true;
   }
 
   if (highlightStage > -1) {
     var queueButton = document.getElementById("queueButton_" + highlightStage);
     queueButton.className += " queueButtonHighlight";
     scrollToId = highlightStage;
+    scrollToCurrent = false;
 
     var currentIdField = document.getElementById("currentIdField");
     currentIdField.value = highlightStage;
@@ -230,6 +265,9 @@ function updateButtons(dontScroll) {
     var queueContainer = document.getElementById("queueContainer");
     var queueHeight = queueContainer.offsetHeight;
     var scrolled = queueContainer.scrollTop;
+    if (scrollToCurrent) {
+      queueHeight = scrollToEntry.offsetHeight;
+    }
 
     var top = scrollToEntry.offsetTop;
     var bottom = top + scrollToEntry.offsetHeight;
@@ -319,15 +357,25 @@ function deleteSong() {
       httpRequest("actSong.php?act=delete&id=" + clientQueue[actIndex].id, reloadQueue);
     }
 
-    if (currentStage >= highlightStage) {
+    if (currentStage == actIndex) {
+      if (currentStage >= clientQueue.length-1) {
+        currentStage = clientQueue.length-2;
+        updateStage();
+      } else {
+        currentStage++;
+        updateStage();
+        currentStage--;
+        updateButtons();
+      }
+    } else if (currentStage > actIndex) {
       currentStage--;
       updateButtons();
     }
 
-    if (highlightStage >= clientQueue.length) {
-      highlightStage = clientQueue.length-1;
+    if (highlightStage >= clientQueue.length-1) {
+      highlightStage = clientQueue.length-2;
       updateButtons();
-    } 
+    }
   }
 }
 

@@ -21,9 +21,11 @@ if ($act == "delete") {
     if ($queue[$i]["id"] == $id) {
       $other = $queue[$i-1]["id"];
       $otherName = $queue[$i-1]["name"];
+      $otherType = $queue[$i-1]["type"];
       $name = $queue[$i]["name"];
-      $mysqli->query("UPDATE queued_song SET name='$otherName' WHERE id=$id");
-      $mysqli->query("UPDATE queued_song SET name='$name' WHERE id=$other");
+      $type = $queue[$i]["type"];
+      $mysqli->query("UPDATE queued_song SET name='$otherName', type=$otherType WHERE id=$id");
+      $mysqli->query("UPDATE queued_song SET name='$name', type=$type WHERE id=$other");
     }
   }
 } else if ($act == "lower") {
@@ -31,9 +33,11 @@ if ($act == "delete") {
     if ($queue[$i]["id"] == $id) {
       $other = $queue[$i+1]["id"];
       $otherName = $queue[$i+1]["name"];
+      $otherType = $queue[$i+1]["type"];
       $name = $queue[$i]["name"];
-      $mysqli->query("UPDATE queued_song SET name='$otherName' WHERE id=$id");
-      $mysqli->query("UPDATE queued_song SET name='$name' WHERE id=$other");
+      $type = $queue[$i]["type"];
+      $mysqli->query("UPDATE queued_song SET name='$otherName', type=$otherType WHERE id=$id");
+      $mysqli->query("UPDATE queued_song SET name='$name', type=$type WHERE id=$other");
     }
   }
 }

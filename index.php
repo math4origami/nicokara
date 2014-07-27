@@ -17,8 +17,13 @@ var link = document.createElement("a");
 link.innerHTML = "Nicokara Add Song";
 link.href = "javascript:(function() { \
   var bookmark = document.createElement('script'); \
-  bookmark.src = '" + address + "addSong.php?address=' + \
-    encodeURIComponent(window.location.origin + window.location.pathname); \
+  bookmark.src = '" + address + "addSong.php?'; \
+  var damData = document.getElementsByClassName('nicokaraDamData'); \
+  if (damData.length > 0) { \
+    bookmark.src += damData[0].id; \
+  } else { \
+    bookmark.src += 'address=' + encodeURIComponent(window.location.origin + window.location.pathname); \
+  } \
   document.body.appendChild(bookmark); \
 })();";
 
@@ -40,8 +45,13 @@ var link = document.createElement("a");
 link.innerHTML = "Local Add Song";
 link.href = "javascript:(function() { \
   var localPage = document.createElement('a'); \
-  localPage.href = '" + address + "addSong.html?address=' + \
-    encodeURIComponent(window.location.origin + window.location.pathname); \
+  localPage.href = '" + address + "addSong.html?'; \
+  var damData = document.getElementsByClassName('nicokaraDamData'); \
+  if (damData.length > 0) { \
+    localPage.href += damData[0].id; \
+  } else { \
+    localPage.href += 'address=' + encodeURIComponent(window.location.origin + window.location.pathname); \
+  } \
   localPage.id = 'nicokaraAddSong'; \
   document.body.appendChild(localPage);\
 })();";
@@ -54,6 +64,8 @@ bookmark.appendChild(link);
 Extension/script: <a href="extension.crx">Nicokara Extension</a> (same as above)
 </div>
 
-<div style="margin-top:20;">2014 Russell Chou <a href="http://www.twitter.com/math4origami/">@math4origami</a></div>
+<div style="margin-top:20;">
+  2014 Russell Chou <a href="http://www.twitter.com/math4origami/">@math4origami</a>
+</div>
 </body>
 </html>
