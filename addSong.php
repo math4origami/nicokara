@@ -30,13 +30,23 @@ if (isset($_GET["address"])) {
   
   $parsed = parse_url($address);
 
-  if (isset($parsed["host"]) && isset($parsed["path"]) &&
-      strpos($parsed["host"], "nicovideo.jp") !== false) {
-    $tags = explode("/", $parsed["path"]);
-    $name = $tags[count($tags) - 1];
+  if (isset($parsed["host"]) && isset($parsed["path"])) {
+    if (strpos($parsed["host"], "nicovideo.jp") !== false) {
+      $tags = explode("/", $parsed["path"]);
+      $name = $tags[count($tags) - 1];
 
-    if (strpos($name, "sm") !== false) {
-      addSong(0, $name);
+      if (strpos($name, "sm") !== false) {
+        addSong(0, $name);
+      }
+    } else if (strpos($parsed["host"], "youtube.com") !== false &&
+               isset($parsed["query"])) {
+      $args = explode("&", $parsed["query"]);
+      // for ($args as $pair) {
+      //   $tags = explode("=", $pair);
+      //   if (count($tags) > 1 && $tags[0] == "v") {
+      //     addSong(2, $tags[1]);
+      //   }
+      // }
     }
   }
 } else if (isset($_GET["contentsId"]) && 

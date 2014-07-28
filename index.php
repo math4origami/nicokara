@@ -16,13 +16,13 @@ address = address.replace("index.php", "");
 var link = document.createElement("a");
 link.innerHTML = "Nicokara Add Song";
 link.href = "javascript:(function() { \
-  var bookmark = document.createElement('script'); \
+  var bookmark = document.createElement('img'); \
   bookmark.src = '" + address + "addSong.php?'; \
   var damData = document.getElementsByClassName('nicokaraDamData'); \
   if (damData.length > 0) { \
     bookmark.src += damData[0].id; \
   } else { \
-    bookmark.src += 'address=' + encodeURIComponent(window.location.origin + window.location.pathname); \
+    bookmark.src += 'address=' + encodeURIComponent(window.location.href); \
   } \
   document.body.appendChild(bookmark); \
 })();";
@@ -50,7 +50,7 @@ link.href = "javascript:(function() { \
   if (damData.length > 0) { \
     localPage.href += damData[0].id; \
   } else { \
-    localPage.href += 'address=' + encodeURIComponent(window.location.origin + window.location.pathname); \
+    localPage.href += 'address=' + encodeURIComponent(window.location.href); \
   } \
   localPage.id = 'nicokaraAddSong'; \
   document.body.appendChild(localPage);\

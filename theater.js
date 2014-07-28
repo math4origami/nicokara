@@ -159,11 +159,13 @@ function checkStage() {
   }
 
   var clientSong = clientQueue[currentStage];
+  console.log(sceneVideo.readyState);
   if (sceneVideo.readyState != 4) {
     if (!clientSong.loadedTemp) {
       clientSong.loadedTemp = true;
       clientSong.tempWindow = window.open("http://www.nicovideo.jp/watch/" + clientSong.name, "_blank",
         "width=100, height=100, top=0, left=600");
+      console.log(clientQueue.tempWindow);
       if (clientSong.tempWindow) {
         clientSong.tempWindow.blur();
       }
@@ -475,4 +477,4 @@ function displayHelp() {
 
 setLocal();
 run(reloadQueue, 1000);
-run(refreshStage, 2000);
+run(refreshStage, 5000);
